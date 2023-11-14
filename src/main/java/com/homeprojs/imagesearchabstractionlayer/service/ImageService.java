@@ -5,13 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
-import org.slf4j.Logger;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author Yao Zhang
@@ -20,6 +20,8 @@ import java.util.*;
  */
 @Service
 public class ImageService {
+
+    Logger logger = Logger.getLogger(ImageService.class.getSimpleName());
     private final RestTemplate restTemplate;
     private HttpHeaders header;
 
@@ -29,21 +31,19 @@ public class ImageService {
     }
 
     public List<Image> queryImage(String keyword) throws JsonProcessingException {
-        String URLStr = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
+        String urlStr = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
         header = new HttpHeaders();
         header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         header.add("Authorization", "Basic eWFuY3lwcmltZWRvb3JAZ21haWwuY29tOjFjODI0MWNlZDg4YWUzNzE=");
-        HashMap<String, String> body = new HashMap<>();
-        body.put("keyword", keyword);
-        HttpEntity<String> entity = new HttpEntity<String>("[\n" +
+        HttpEntity<String> entity = new HttpEntity<>("[\n" +
                 "{\n" +
                 "\"language_name\": \"English (United Kingdom)\",\n" +
                 "\"location_name\": \"London,England,United Kingdom\",\n" +
                 "\"keyword\": \"" + keyword + "\"\n" +
                 "}\n" +
                 "]", header);
-        ResponseEntity<String> response = restTemplate.exchange(URLStr, HttpMethod.POST, entity, String.class);
-        JsonObject jsonObject = new JsonParser().parse(response.getBody()).getAsJsonObject();
+        ResponseEntity<String> response = restTemplate.exchange(urlStr, HttpMethod.POST, entity, String.class);
+        JsonObject jsonObject = JsonParser.parseString(Objects.requireNonNull(response.getBody())).getAsJsonObject();
         JsonArray tasks = jsonObject.getAsJsonArray("tasks");
         JsonObject temp = tasks.get(0).getAsJsonObject();
         JsonArray result = temp.getAsJsonArray("result");
@@ -52,8 +52,8 @@ public class ImageService {
         ObjectMapper objectMapper = new ObjectMapper();
         for (JsonElement jsonElement : items) {
             String typeStr = jsonElement.getAsJsonObject().get("type").getAsString();
-            if (typeStr.equals("organic")) {
-                try{
+            if ("organic".equals(typeStr)) {
+                try {
                     JsonArray imgItems = jsonElement.getAsJsonObject().getAsJsonArray("images");
                     for (JsonElement jsonElement1 : imgItems) {
                         Image imageInfo = objectMapper.readValue(jsonElement1.getAsJsonObject().toString(), Image.class);
@@ -61,7 +61,7 @@ public class ImageService {
                     }
 
                 } catch (ClassCastException e) {
-                    System.out.println("err while dealing with item type: ");
+                    logger.info("err while dealing with item type: ");
                 }
             }
         }
@@ -69,11 +69,11 @@ public class ImageService {
     }
 
     public List<DummyImage> getAllImages() {
-        String uRLStr = "https://jsonplaceholder.typicode.com/photos";
+        String urlstr = "https://jsonplaceholder.typicode.com/photos";
         header = new HttpHeaders();
         header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         HttpEntity<String> entity = new HttpEntity<>("body", header);
-        ResponseEntity<String> response = restTemplate.exchange(uRLStr, HttpMethod.GET, entity, String.class);
+        ResponseEntity<String> response = restTemplate.exchange(urlstr, HttpMethod.GET, entity, String.class);
         DummyImage[] images = new Gson().fromJson(response.getBody(), DummyImage[].class);
         return Arrays.asList(images);
     }
