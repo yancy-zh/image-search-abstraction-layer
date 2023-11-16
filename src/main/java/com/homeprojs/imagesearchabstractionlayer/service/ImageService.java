@@ -5,8 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
+import com.homeprojs.imagesearchabstractionlayer.repository.ImageRespository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.*;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -20,15 +25,16 @@ import java.util.logging.Logger;
  */
 @Service
 public class ImageService {
+    @Autowired
+    ImageRespository imageRespository;
 
+
+    public ImageService(RestTemplateBuilder restTemplateBuilder) {
+        this.restTemplate = restTemplateBuilder.build();
+    }
     Logger logger = Logger.getLogger(ImageService.class.getSimpleName());
     private final RestTemplate restTemplate;
     private HttpHeaders header;
-
-    public ImageService(RestTemplateBuilder restTemplateBuilder) {
-
-        this.restTemplate = restTemplateBuilder.build();
-    }
 
     public List<Image> queryImage(String keyword) throws JsonProcessingException {
         String urlStr = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
@@ -76,5 +82,19 @@ public class ImageService {
         ResponseEntity<String> response = restTemplate.exchange(urlstr, HttpMethod.GET, entity, String.class);
         DummyImage[] images = new Gson().fromJson(response.getBody(), DummyImage[].class);
         return Arrays.asList(images);
+    }
+
+    public ResponseEntity<Map<String, Object>> findPaginated(Pageable paging) {
+        try {
+            Page<Image> pageImages = imageRespository.findAll(paging);
+            List<Image> images = pageImages.getContent();
+            Map<String, Object> response = new HashMap<>();
+            response.put("images", images);
+            response.put("totalItems", pageImages.getTotalElements());
+            response.put("totalPages", pageImages.getTotalPages());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

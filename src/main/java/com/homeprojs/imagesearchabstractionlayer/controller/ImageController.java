@@ -5,16 +5,14 @@ import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
 import com.homeprojs.imagesearchabstractionlayer.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
-
-import static java.lang.System.*;
 
 /**
  * @author Yao Zhang
@@ -25,15 +23,10 @@ import static java.lang.System.*;
 @RequestMapping("images")
 public class ImageController {
     /* retrieve images by keyword */
-    @Resource
-    private ImageService imageService;
-    Logger logger = Logger.getLogger(ImageController.class.getSimpleName());
-
     @Autowired
-    public ImageController(ImageService imageService) {
-        this.imageService = imageService;
+    private ImageService imageService;
 
-    }
+    Logger logger = Logger.getLogger(ImageController.class.getSimpleName());
 
     @GetMapping("hello")
     public String getHello() {
@@ -44,6 +37,13 @@ public class ImageController {
     public List<Image> getImageByKeyword(@PathVariable("keyword") String keyword) throws JsonProcessingException {
         logger.info("Responding with images for " + keyword + "...");
         return this.imageService.queryImage(keyword);
+    }
+
+    @GetMapping("/query/findPaginated")
+    public ResponseEntity<Map<String, Object>> getImageByPagination(@RequestParam(defaultValue = "0") int page,
+                                                             @RequestParam(defaultValue = "3") int size) {
+        Pageable paging = PageRequest.of(page, size);
+        return imageService.findPaginated(paging);
     }
 
     @GetMapping("jsonholder")
