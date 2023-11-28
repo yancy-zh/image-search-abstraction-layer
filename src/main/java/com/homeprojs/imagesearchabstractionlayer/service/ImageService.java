@@ -61,7 +61,8 @@ public class ImageService {
                     }
 
                 } catch (ClassCastException e) {
-                    logger.info("err while dealing with item type: ");
+                    logger.info("err while parsing json: ");
+                    e.printStackTrace();
                 }
             }
         }

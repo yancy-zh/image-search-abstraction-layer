@@ -1,14 +1,24 @@
 package com.homeprojs.imagesearchabstractionlayer.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * @author Yao Zhang
  * @date 2023-11-06
  * # @apiNote
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Image {
-    private String image_url;
+    @JsonProperty("image_url")
+    private String imageUrl;
+    @JsonProperty
     private String url;
+    @JsonProperty
     private String alt;
+    @JsonProperty
+    private String type;
+
 
     public String getUrl() {
         return url;
@@ -26,14 +36,12 @@ public class Image {
         this.type = type;
     }
 
-    private String type;
-
     public String getImageUrl() {
-        return image_url;
+        return imageUrl;
     }
 
-    public void setImageUrl(String image_url) {
-        this.image_url = image_url;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public String getAlt() {
