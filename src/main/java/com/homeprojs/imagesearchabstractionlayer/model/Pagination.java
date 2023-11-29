@@ -3,14 +3,18 @@ package com.homeprojs.imagesearchabstractionlayer.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Administrator
+ */
 public class Pagination<T> {
     private final List<T> srcLs;
     private final List<List<T>> lsOfPaged = new ArrayList<>();
-    private static final int PAGE_SIZE = 3;
+    private final int PAGE_SIZE;
 
-    public Pagination(List<T> ls) {
+    public Pagination(List<T> ls, int pageSize) {
         super();
         this.srcLs = ls;
+        this.PAGE_SIZE = pageSize;
         divideIntoPages();
     }
 
