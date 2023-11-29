@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
+import com.homeprojs.imagesearchabstractionlayer.model.WriterReader;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,9 @@ public class ImageService {
                 }
             }
         }
+        // save images to local storage
+        WriterReader writerReader = new WriterReader();
+        writerReader.writeToFile(images, "myObject.txt");
         return images;
     }
 

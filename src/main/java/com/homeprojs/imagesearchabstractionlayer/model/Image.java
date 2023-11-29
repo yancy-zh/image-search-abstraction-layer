@@ -3,13 +3,15 @@ package com.homeprojs.imagesearchabstractionlayer.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
+
 /**
  * @author Yao Zhang
  * @date 2023-11-06
  * # @apiNote
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Image {
+public class Image implements Serializable {
     @JsonProperty("image_url")
     private String imageUrl;
     @JsonProperty
