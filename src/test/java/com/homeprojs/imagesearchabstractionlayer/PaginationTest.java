@@ -97,9 +97,18 @@ class PaginationTest {
     @Test
     void testGetPaginatedWithImageObj() {
         WriterReader writerReader = new WriterReader();
-        List<Image> lsOfImgs = writerReader.readToObj("myObject.txt");
+        List<Image> lsOfImgs = writerReader.readToObj("testData.txt");
         List<Image> lsPage1 = Arrays.asList(lsOfImgs.get(0), lsOfImgs.get(1), lsOfImgs.get(2));
-        Pagination<Image> myPagination = new Pagination<>(lsOfImgs, 3);
+        Pagination<Image> myPagination = new Pagination<Image>(lsOfImgs, 3);
         assertThat(myPagination.getPaginated(1)).usingRecursiveComparison().isEqualTo(lsPage1);
+    }
+
+    @Test
+    void testGetPaginationEmptyArray() {
+        WriterReader writerReader = new WriterReader();
+        List<Image> lsOfImgs = writerReader.readToObj("testData.txt");
+        List<Image> lsPage1 = Arrays.asList(lsOfImgs.get(3), lsOfImgs.get(4), lsOfImgs.get(5));
+        Pagination<Image> myPagination = new Pagination<>(lsOfImgs, 3);
+        assertThat(myPagination.getPaginated(2)).usingRecursiveComparison().isEqualTo(lsPage1);
     }
 }

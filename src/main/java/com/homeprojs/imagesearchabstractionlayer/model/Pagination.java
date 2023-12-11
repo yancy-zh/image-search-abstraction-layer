@@ -8,8 +8,8 @@ import java.util.List;
  */
 public class Pagination<T> {
     private final List<T> srcLs;
-    private final List<List<T>> lsOfPaged = new ArrayList<>();
     private final int PAGE_SIZE;
+    private final List<ArrayList<T>> lsOfPaged = new ArrayList<>();
 
     public Pagination(List<T> ls, int pageSize) {
         super();
@@ -19,34 +19,35 @@ public class Pagination<T> {
     }
 
     private void divideIntoPages() {
-        int totalPageNumsum;
+        int totalPageNum;
         if (this.srcLs.size() % PAGE_SIZE == 0) {
-            totalPageNumsum = this.srcLs.size() / PAGE_SIZE;
+            totalPageNum = this.srcLs.size() / PAGE_SIZE;
+            ArrayList<T> page = new ArrayList<>(PAGE_SIZE);
             // array has exactly a divisible num of elements
-            for (int i = 0; i < totalPageNumsum; i++) {
-                List<T> selectedList = new ArrayList<>();
+            for (int i = 0; i < totalPageNum; i++) {
                 for (int j = i * PAGE_SIZE; j < i * PAGE_SIZE + PAGE_SIZE; j++) {
-                    selectedList.add(this.srcLs.get(j));
+                    page.add(this.srcLs.get(j));
                 }
-                this.lsOfPaged.add(selectedList);
+                this.lsOfPaged.add(new ArrayList<>(page));
+                page.clear();
             }
         } else {
-            totalPageNumsum = this.srcLs.size() / PAGE_SIZE + 1;
+            totalPageNum = this.srcLs.size() / PAGE_SIZE + 1;
+            ArrayList<T> page = new ArrayList<>(PAGE_SIZE);
             // array has remaining elements after divided by page_size
-            List<T> selectedList = new ArrayList<>();
-            for (int i = 0; i < totalPageNumsum - 1; i++) {
+            for (int i = 0; i < totalPageNum - 1; i++) {
                 for (int j = i * PAGE_SIZE; j < i * PAGE_SIZE + PAGE_SIZE; j++) {
-                    selectedList.add(this.srcLs.get(j));
+                    page.add(this.srcLs.get(j));
                 }
-                this.lsOfPaged.add(selectedList);
-                selectedList.clear();
+                this.lsOfPaged.add(new ArrayList<>(page));
+                page.clear();
             }
             // last page
-            for (int k = (totalPageNumsum - 1) * PAGE_SIZE; k < this.srcLs.size(); k++) {
-                selectedList.add(this.srcLs.get(k));
+            for (int k = (totalPageNum - 1) * PAGE_SIZE; k < this.srcLs.size(); k++) {
+                page.add(this.srcLs.get(k));
             }
-            this.lsOfPaged.add(selectedList);
-            selectedList.clear();
+            this.lsOfPaged.add(new ArrayList<>(page));
+            page.clear();
         }
     }
 

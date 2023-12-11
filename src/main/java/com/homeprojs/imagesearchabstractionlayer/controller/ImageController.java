@@ -1,20 +1,15 @@
 package com.homeprojs.imagesearchabstractionlayer.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
 import com.homeprojs.imagesearchabstractionlayer.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static java.lang.System.*;
 
 /**
  * @author Yao Zhang
@@ -40,10 +35,18 @@ public class ImageController {
         return "Hello World!";
     }
 
+    @GetMapping("queryall/{keyword}")
+    public List<Image> getImageByKeyword(@PathVariable("keyword") String keyword) {
+        logger.log(Level.INFO, String.format("Responding with images for %s...", keyword));
+        return this.imageService.queryAllImages(keyword);
+    }
+
     @GetMapping("query/{keyword}")
-    public List<Image> getImageByKeyword(@PathVariable("keyword") String keyword) throws JsonProcessingException {
-        logger.info("Responding with images for " + keyword + "...");
-        return this.imageService.queryImage(keyword);
+    public List<Image> getImageByKeyword(@PathVariable("keyword") String keyword, @RequestParam int page) {
+        logger.log(Level.INFO, String.format("Responding with images for %s, getting page: %d", keyword, page));
+        List<Image> images = this.imageService.getImagesByPage(keyword, page);
+        logger.info("arr size: " + images.size());
+        return images;
     }
 
     @GetMapping("jsonholder")
