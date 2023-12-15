@@ -4,10 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import com.homeprojs.imagesearchabstractionlayer.exception.TempDataFileCantBeDeleted;
-import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
-import com.homeprojs.imagesearchabstractionlayer.model.Image;
-import com.homeprojs.imagesearchabstractionlayer.model.Pagination;
-import com.homeprojs.imagesearchabstractionlayer.model.WriterReader;
+import com.homeprojs.imagesearchabstractionlayer.model.*;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Async;
@@ -146,6 +143,7 @@ public class ImageService {
         return myPagination.getPaginated(pageIdx);
     }
 
+
     public List<DummyImage> getAllImages() {
         String urlstr = "https://jsonplaceholder.typicode.com/photos";
         header = new HttpHeaders();
@@ -154,5 +152,10 @@ public class ImageService {
         ResponseEntity<String> response = restTemplate.exchange(urlstr, HttpMethod.GET, entity, String.class);
         DummyImage[] images = new Gson().fromJson(response.getBody(), DummyImage[].class);
         return Arrays.asList(images);
+    }
+
+    public List<String> getRecentTerms() {
+        RecentActivity recentActivity = new RecentActivity();
+        return recentActivity.getRecentTerms();
     }
 }
