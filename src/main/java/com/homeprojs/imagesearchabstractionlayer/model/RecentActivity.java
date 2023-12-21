@@ -1,9 +1,14 @@
 package com.homeprojs.imagesearchabstractionlayer.model;
 
 
+import com.homeprojs.imagesearchabstractionlayer.exception.RecentSearchTermsIOException;
+import com.homeprojs.imagesearchabstractionlayer.exception.UserFileNotFoundException;
+
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,7 +32,7 @@ public class RecentActivity {
             }
             // if file already exists will do nothing
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 
@@ -35,7 +40,7 @@ public class RecentActivity {
         try {
             out = new BufferedWriter(new FileWriter(recentSearchTermsFileStr, true));
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 
@@ -44,7 +49,7 @@ public class RecentActivity {
             History history = new History(searchStr);
             out.write(history.toOneLineLog());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 
@@ -52,7 +57,7 @@ public class RecentActivity {
         try {
             out.newLine();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 
@@ -60,12 +65,18 @@ public class RecentActivity {
         try {
             out.close();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 
     public boolean deleteFile() {
         return recentSearchTermsFile.delete();
+    }
+
+    private boolean patternChk(String str) {
+        Pattern re = Pattern.compile("[a-z|A-Z|\\s]+, [\\d|.]+");
+        Matcher matcher = re.matcher(str);
+        return matcher.matches();
     }
 
 
@@ -78,16 +89,20 @@ public class RecentActivity {
             in = new BufferedReader(new FileReader(recentSearchTermsFile));
             String line = in.readLine();
             while (line != null) {
-                List<String> words = Stream.of(in.readLine().split(",")).collect(Collectors.toList());
+                if (!patternChk(line)) {
+                    continue;
+                }
+                List<String> words = Stream.of(line.split(",")).collect(Collectors.toList());
                 History hist = new History(words.get(0), words.get(1));
                 terms.add(words.get(0));
                 historys.add(hist);
+                line = in.readLine();
             }
             return terms;
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            throw new UserFileNotFoundException(e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RecentSearchTermsIOException(e.getMessage());
         }
     }
 }

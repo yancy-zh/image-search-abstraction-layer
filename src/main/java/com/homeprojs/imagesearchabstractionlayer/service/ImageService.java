@@ -3,7 +3,7 @@ package com.homeprojs.imagesearchabstractionlayer.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
-import com.homeprojs.imagesearchabstractionlayer.exception.TempDataFileCantBeDeleted;
+import com.homeprojs.imagesearchabstractionlayer.exception.TempDataFileCantBeDeletedException;
 import com.homeprojs.imagesearchabstractionlayer.model.*;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
@@ -124,7 +124,7 @@ public class ImageService {
         try {
             Files.deleteIfExists(Paths.get(TEMP_FILE));
         } catch (IOException e) {
-            throw new TempDataFileCantBeDeleted(e.getMessage());
+            throw new TempDataFileCantBeDeletedException(e.getMessage());
         }
         // save images to local storage
         WriterReader writerReader = new WriterReader();
