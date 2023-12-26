@@ -10,6 +10,14 @@ import java.time.format.DateTimeFormatter;
  * # @apiNote
  */
 public class History {
+    public String getSearchTerm() {
+        return searchTerm;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
     private String searchTerm;
     private String timestamp;
 

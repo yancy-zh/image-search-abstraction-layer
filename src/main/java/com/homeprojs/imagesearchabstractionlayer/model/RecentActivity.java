@@ -5,7 +5,10 @@ import com.homeprojs.imagesearchabstractionlayer.exception.RecentSearchTermsIOEx
 import com.homeprojs.imagesearchabstractionlayer.exception.UserFileNotFoundException;
 
 import java.io.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,10 +21,11 @@ import java.util.stream.Stream;
  * # @apiNote
  */
 public class RecentActivity {
+    //TODO: change this attribute to variable
     private static String recentSearchTermsFileStr = "recentSearchStrs.txt";
     Logger logger = Logger.getLogger(RecentActivity.class.getSimpleName());
     File recentSearchTermsFile = new File(recentSearchTermsFileStr);
-    private Queue<String> historyQueue;
+    private int QUEUE_MAX_SIZE = 10;
     BufferedWriter out;
     BufferedReader in;
 
@@ -74,17 +78,15 @@ public class RecentActivity {
     }
 
     private boolean patternChk(String str) {
-        Pattern re = Pattern.compile("[a-z|A-Z|\\s]+, [\\d|.]+");
+        Pattern re = Pattern.compile("^[\\w|\\s?]+, [0-9|.?]+$");
         Matcher matcher = re.matcher(str);
         return matcher.matches();
     }
 
 
     public List<String> getRecentTerms() {
-        List<History> historys = new ArrayList<>();
         Queue<String> uniqueTermsQueue = new LinkedList<>();
-        HashMap<String, History> map = new HashMap<>();
-        List<String> terms = new ArrayList<>();
+        HashMap<String, String> map = new HashMap<>();
         try {
             in = new BufferedReader(new FileReader(recentSearchTermsFile));
             String line = in.readLine();
@@ -94,11 +96,19 @@ public class RecentActivity {
                 }
                 List<String> words = Stream.of(line.split(",")).collect(Collectors.toList());
                 History hist = new History(words.get(0), words.get(1));
-                terms.add(words.get(0));
-                historys.add(hist);
+                if (map.containsKey(hist.getSearchTerm())) {
+                    // update timestamp for this key
+                    map.put(hist.getSearchTerm(), hist.getTimestamp());
+                } else {
+                    if (uniqueTermsQueue.size() == QUEUE_MAX_SIZE) {
+                        uniqueTermsQueue.poll();
+                    }
+                    map.put(hist.getSearchTerm(), hist.getTimestamp());
+                    uniqueTermsQueue.add(hist.getSearchTerm());
+                }
                 line = in.readLine();
             }
-            return terms;
+            return Stream.of(uniqueTermsQueue.toArray()).map(Object::toString).collect(Collectors.toList());
         } catch (FileNotFoundException e) {
             throw new UserFileNotFoundException(e.getMessage());
         } catch (IOException e) {

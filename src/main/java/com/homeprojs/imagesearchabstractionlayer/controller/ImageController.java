@@ -2,7 +2,6 @@ package com.homeprojs.imagesearchabstractionlayer.controller;
 
 import com.homeprojs.imagesearchabstractionlayer.model.DummyImage;
 import com.homeprojs.imagesearchabstractionlayer.model.Image;
-import com.homeprojs.imagesearchabstractionlayer.model.WriterReader;
 import com.homeprojs.imagesearchabstractionlayer.service.ImageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -39,8 +38,6 @@ public class ImageController {
     @GetMapping("queryall/{keyword}")
     public List<Image> getImageByKeyword(@PathVariable("keyword") String keyword) {
         logger.log(Level.INFO, String.format("Responding with images for %s...", keyword));
-        WriterReader writerReader = new WriterReader();
-
         return this.imageService.queryAllImages(keyword);
     }
 
