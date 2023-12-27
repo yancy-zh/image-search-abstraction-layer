@@ -21,8 +21,9 @@ import java.util.stream.Stream;
  * # @apiNote
  */
 public class RecentActivity {
-    //TODO: change this attribute to variable
-    private static String recentSearchTermsFileStr = "recentSearchStrs.txt";
+
+
+    private String recentSearchTermsFileStr = "recentSearchStrs.txt";
     Logger logger = Logger.getLogger(RecentActivity.class.getSimpleName());
     File recentSearchTermsFile = new File(recentSearchTermsFileStr);
     private int QUEUE_MAX_SIZE = 10;
@@ -38,6 +39,10 @@ public class RecentActivity {
         } catch (IOException e) {
             throw new RecentSearchTermsIOException(e.getMessage());
         }
+    }
+
+    public RecentActivity(String p_recentSearchTermsFileStr) {
+        recentSearchTermsFileStr = p_recentSearchTermsFileStr;
     }
 
     public void openWriterStream() {
