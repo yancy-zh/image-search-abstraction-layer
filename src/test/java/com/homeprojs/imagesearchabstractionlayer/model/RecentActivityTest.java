@@ -49,4 +49,22 @@ class RecentActivityTest {
         List<String> ls_str = Arrays.stream(testStr.split(",")).map(String::trim).collect(Collectors.toList());
         assertEquals(ls_str, recentActivity.getRecentTerms());
     }
+
+    @Test
+    void testUseExistingLog2() {
+        RecentActivity recentActivity = new RecentActivity("testLog2.txt");
+        String testStr =
+                "DigitalOcean,\n" +
+                        "mettl,\n" +
+                        "Overflowstackoverflow,\n" +
+                        "battery,\n" +
+                        "Calender,\n" +
+                        "ear phone,\n" +
+                        "schnitzel plate,\n" +
+                        "stainless steel basin,\n" +
+                        "terence piano,\n" +
+                        "hlk milk blender\n";
+        List<String> ls_str = Arrays.stream(testStr.split(",")).map(String::trim).collect(Collectors.toList());
+        assertEquals(ls_str, recentActivity.getRecentTerms());
+    }
 }

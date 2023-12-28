@@ -5,10 +5,9 @@ import com.homeprojs.imagesearchabstractionlayer.exception.RecentSearchTermsIOEx
 import com.homeprojs.imagesearchabstractionlayer.exception.UserFileNotFoundException;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,13 +23,15 @@ public class RecentActivity {
 
 
     private String recentSearchTermsFileStr = "recentSearchStrs.txt";
+    private static String dateTimePattern = "yyyy.MM.dd.HH.mm.ss";
     Logger logger = Logger.getLogger(RecentActivity.class.getSimpleName());
-    File recentSearchTermsFile = new File(recentSearchTermsFileStr);
+    File recentSearchTermsFile;
     private int QUEUE_MAX_SIZE = 10;
     BufferedWriter out;
     BufferedReader in;
 
     public RecentActivity() {
+        recentSearchTermsFile = new File(recentSearchTermsFileStr);
         try {
             if (recentSearchTermsFile.createNewFile()) {
                 logger.info(String.format("%s file already exists", recentSearchTermsFileStr));
@@ -43,6 +44,7 @@ public class RecentActivity {
 
     public RecentActivity(String p_recentSearchTermsFileStr) {
         recentSearchTermsFileStr = p_recentSearchTermsFileStr;
+        recentSearchTermsFile = new File(recentSearchTermsFileStr);
     }
 
     public void openWriterStream() {
@@ -100,13 +102,17 @@ public class RecentActivity {
                     continue;
                 }
                 List<String> words = Stream.of(line.split(",")).collect(Collectors.toList());
-                History hist = new History(words.get(0), words.get(1));
+                History hist = new History(words.get(0), words.get(1).trim());
                 if (map.containsKey(hist.getSearchTerm())) {
                     // update timestamp for this key
                     map.put(hist.getSearchTerm(), hist.getTimestamp());
                 } else {
                     if (uniqueTermsQueue.size() == QUEUE_MAX_SIZE) {
                         uniqueTermsQueue.poll();
+                    }
+                    if (map.size() == QUEUE_MAX_SIZE) {
+                        // find the pair with the earliest timestamp
+                        map.remove(getEarliestTerm(map));
                     }
                     map.put(hist.getSearchTerm(), hist.getTimestamp());
                     uniqueTermsQueue.add(hist.getSearchTerm());
@@ -119,5 +125,28 @@ public class RecentActivity {
         } catch (IOException e) {
             throw new RecentSearchTermsIOException(e.getMessage());
         }
+    }
+
+    private String getEarliestTerm(HashMap<String, String> map) {
+        ArrayList<LocalDateTime> list = new ArrayList<>();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            list.add(stringToTimestamp(entry.getValue()));
+        }
+        Collections.sort(list);
+        String timeStampEarliestTerm = timestampToString(list.get(0));
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (timeStampEarliestTerm.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    private LocalDateTime stringToTimestamp(String value) {
+        return LocalDateTime.parse(value, DateTimeFormatter.ofPattern(dateTimePattern));
+    }
+
+    private String timestampToString(LocalDateTime localDateTime) {
+        return localDateTime.format(DateTimeFormatter.ofPattern(dateTimePattern));
     }
 }
