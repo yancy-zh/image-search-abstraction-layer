@@ -3,6 +3,8 @@ package com.homeprojs.imagesearchabstractionlayer;
 import com.homeprojs.imagesearchabstractionlayer.model.RecentActivity;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 /**
  * @author Yao Zhang
  * @date 2023-12-12
@@ -19,9 +21,10 @@ class WriterReaderTest {
         recentActivity.openWriterStream();
         for (String str : lsStr) {
             recentActivity.saveSearchString(str);
-            recentActivity.appendNewLine();
         }
+        //TODO: read the file to an object
         recentActivity.closeWriter();
+        assertSame(lsStr, lsStr);
     }
 
 

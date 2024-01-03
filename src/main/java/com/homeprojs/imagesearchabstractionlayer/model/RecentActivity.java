@@ -23,10 +23,10 @@ public class RecentActivity {
 
 
     private String recentSearchTermsFileStr = "recentSearchStrs.txt";
-    private static String dateTimePattern = "yyyy.MM.dd.HH.mm.ss";
+    private static final String dateTimePattern = "yyyy.MM.dd.HH.mm.ss";
     Logger logger = Logger.getLogger(RecentActivity.class.getSimpleName());
     File recentSearchTermsFile;
-    private int QUEUE_MAX_SIZE = 10;
+    private final int QUEUE_MAX_SIZE = 10;
     BufferedWriter out;
     BufferedReader in;
 
@@ -59,16 +59,17 @@ public class RecentActivity {
         try {
             History history = new History(searchStr);
             out.write(history.toOneLineLog());
-        } catch (IOException e) {
-            throw new RecentSearchTermsIOException(e.getMessage());
-        }
-    }
-
-    public void appendNewLine() {
-        try {
             out.newLine();
         } catch (IOException e) {
             throw new RecentSearchTermsIOException(e.getMessage());
+        } finally {
+            if (out != null) {
+                try {
+                    out.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -93,7 +94,7 @@ public class RecentActivity {
 
     public List<String> getRecentTerms() {
         Queue<String> uniqueTermsQueue = new LinkedList<>();
-        HashMap<String, String> map = new HashMap<>();
+        HashMap<String, String> map = new HashMap<>(10);
         try {
             in = new BufferedReader(new FileReader(recentSearchTermsFile));
             String line = in.readLine();

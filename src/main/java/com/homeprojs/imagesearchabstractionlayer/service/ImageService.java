@@ -30,13 +30,16 @@ public class ImageService {
     private final RestTemplate restTemplate;
     private HttpHeaders header;
     private static final String TEMP_FILE = "myObject.txt";
+    private RecentActivity recentActivity = new RecentActivity();
 
     public ImageService(RestTemplateBuilder restTemplateBuilder) {
-
         this.restTemplate = restTemplateBuilder.build();
     }
 
     public List<Image> queryAllImages(String keyword) {
+        recentActivity.openWriterStream();
+        recentActivity.saveSearchString(keyword);
+        recentActivity.closeWriter();
         String urlStr = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
         header = new HttpHeaders();
         header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -133,6 +136,9 @@ public class ImageService {
     }
 
     public List<Image> getImagesByPage(String keyword, int pageIdx) {
+        recentActivity.openWriterStream();
+        recentActivity.saveSearchString(keyword);
+        recentActivity.closeWriter();
         long start = System.currentTimeMillis();
         this.queryImage(keyword);
         logger.info("request done, elapsed time: " + (System.currentTimeMillis() - start));
@@ -155,7 +161,6 @@ public class ImageService {
     }
 
     public List<String> getRecentTerms() {
-        RecentActivity recentActivity = new RecentActivity();
         return recentActivity.getRecentTerms();
     }
 }
