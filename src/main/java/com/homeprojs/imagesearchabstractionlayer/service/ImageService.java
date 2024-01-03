@@ -39,7 +39,6 @@ public class ImageService {
     public List<Image> queryAllImages(String keyword) {
         recentActivity.openWriterStream();
         recentActivity.saveSearchString(keyword);
-        recentActivity.closeWriter();
         String urlStr = "https://api.dataforseo.com/v3/serp/google/organic/live/advanced";
         header = new HttpHeaders();
         header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
